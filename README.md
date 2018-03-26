@@ -6,7 +6,7 @@ DNS Rebinding is a savy exploit that hasn't gotten the attention it deserves ove
 
 ## Getting Started
 
-```
+```bash
 # install using npm
 npm install host-validation
 ```
@@ -21,16 +21,16 @@ const app = express()
 // any requests that don't supply a whitelisted Host will be rejected
 // with a 401 HTTP status code
 app.use(hostValidation({ hosts: ['127.0.0.1:3000',
-								 'localhost:3000'
-								 'mydomain.com', 
-								 /.*\.mydomain\.com/] }))
+                                 'localhost:3000'
+                                 'mydomain.com', 
+                                 /.*\.mydomain\.com/] }))
 
 app.get('/', (req, res) => {
-	res.send('Hello trusted client, thanks for including a whitelisted Host header.')
+    res.send('Hello trusted client, thanks for including a whitelisted Host header.')
 })
 
 app.listen(3000, () => {
-	console.log('server accepting requests w/ valid Host headers port 3000')
+    console.log('server accepting requests w/ valid Host headers port 3000')
 })
 ```
 
@@ -80,7 +80,7 @@ app.use(hostValidation({ referers: [/^https:\/\//]})
 // you can include both host and referer values in the config
 // by default, only requests that match BOTH Host and Referer values will be allowed
 app.use(hostValidation({ hosts: ['trusted-host.com'], 
-	                     referers: ['https://trusted-host.com/login.php'] })
+                         referers: ['https://trusted-host.com/login.php'] })
 ```
 
 ```javascript
@@ -88,8 +88,8 @@ app.use(hostValidation({ hosts: ['trusted-host.com'],
 // either the hosts or the referers requirements. Accepted values for mode include 
 // 'both' and 'either'. The default value is 'both' if none is specified.  
 app.use(hostValidation({ hosts: ['trusted-host.com'], 
-	                     referers: ['https://trusted-host.com/login.php'],
-	                     mode: 'either' })
+                         referers: ['https://trusted-host.com/login.php'],
+                         mode: 'either' })
 ```
 
 ## Custom rules for custom routes
