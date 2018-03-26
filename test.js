@@ -44,12 +44,12 @@ app.get('/referers-test', (req, res) => allowed(res))
 
 
 app.use('/host-and-referers-test', hostValidation({ hosts: ['trusted-host.com'], 
-	                                           referers: ['trusted-host.com/login.php'] }))
+	                                           referers: ['http://trusted-host.com/login.php'] }))
 app.get('/host-and-referers-test', (req, res) => allowed(res))
 
 
 app.use('/host-or-referers-test', hostValidation({ hosts: ['trusted-host.com'], 
-	                                          referers: ['trusted-host.com/login.php'],
+	                                          referers: ['http://trusted-host.com/login.php'],
 	                                          mode: 'either' }))
 app.get('/host-or-referers-test', (req, res) => allowed(res))
 
@@ -59,7 +59,7 @@ app.use('/lan-host-regex-test', hostValidation({ hosts: [lanHostRegex] }))
 app.get('/lan-host-regex-test', (req, res) => allowed(res))
 
 
-const lanRefererRegex = /^192\.168\.1\.([01]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])(\/.*){0,1}$/
+const lanRefererRegex = /^http:\/\/192\.168\.1\.([01]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])(\/.*){0,1}$/
 app.use('/lan-referer-regex-test', hostValidation({ referers: [lanRefererRegex] }))
 app.get('/lan-referer-regex-test', (req, res) => allowed(res))
 
@@ -67,10 +67,14 @@ app.use('/https-referer', hostValidation({ referers: [/^https:\/\//] }))
 app.get('/https-referer', (req, res) => allowed(res))
 
 
-app.listen(4322, () => {
+const server = app.listen(4322, () => {
 	console.log('server allowing HTTP requests from 127.0.0.1 on port 4322')
 	runClientTests()
 })
+
+// this is a terrible hack, but it's the simplest way to have the tests finish
+// please, nobody stone me for this...
+setTimeout(() => server.close(() => process.exit(0)), 1500)
 
 function allowed(res) {
 	res.send('Hello trusted client, thanks for sending the right Host/Referer headers.')
@@ -147,19 +151,19 @@ function runClientTests() {
 	request(options, expect(clone(options), 401))
 
 	options.headers.Host = null
-	options.headers.Referer = 'trusted-host.com/login.php'
+	options.headers.Referer = 'http://trusted-host.com/login.php'
 	request(options, expect(clone(options), 401))
 
 	options.headers.Host = 'trusted-host.com'
-	options.headers.Referer = 'trusted-host.com/login.php'
+	options.headers.Referer = 'http://trusted-host.com/login.php'
 	request(options, expect(clone(options), 200))
 
 	options.headers.Host = 'trusted-host.com'
-	options.headers.Referer = 'trusted-host.com/index.php'
+	options.headers.Referer = 'http://trusted-host.com/index.php'
 	request(options, expect(clone(options), 401))
 
 	options.headers.Host = 'untrusted-host.com'
-	options.headers.Referer = 'trusted-host.com/login.php'
+	options.headers.Referer = 'http://trusted-host.com/login.php'
 	request(options, expect(clone(options), 401))
 
 
@@ -169,23 +173,23 @@ function runClientTests() {
 	request(options, expect(clone(options), 200))
 
 	options.headers.Host = null
-	options.headers.Referer = 'trusted-host.com/login.php'
+	options.headers.Referer = 'http://trusted-host.com/login.php'
 	request(options, expect(clone(options), 200))
 
 	options.headers.Host = 'trusted-host.com'
-	options.headers.Referer = 'trusted-host.com/login.php'
+	options.headers.Referer = 'http://trusted-host.com/login.php'
 	request(options, expect(clone(options), 200))
 
 	options.headers.Host = 'trusted-host.com'
-	options.headers.Referer = 'trusted-host.com/index.php'
+	options.headers.Referer = 'http://trusted-host.com/index.php'
 	request(options, expect(clone(options), 200))
 
 	options.headers.Host = 'untrusted-host.com'
-	options.headers.Referer = 'trusted-host.com/login.php'
+	options.headers.Referer = 'http://trusted-host.com/login.php'
 	request(options, expect(clone(options), 200))
 
 	options.headers.Host = null
-	options.headers.Referer = 'trusted-host.com/index.php'
+	options.headers.Referer = 'http://trusted-host.com/index.php'
 	request(options, expect(clone(options), 401))
 
 	options.headers.Host = 'untrusted-host.com'
@@ -229,31 +233,31 @@ function runClientTests() {
 
 	options.url = `${server}/lan-referer-regex-test`
 	options.headers.Host = null
-	options.headers.Referer = '192.168.1.83'
+	options.headers.Referer = 'http://192.168.1.83'
 	request(options, expect(clone(options), 200))
 
-	options.headers.Referer = '192.168.1.83/'
+	options.headers.Referer = 'http://192.168.1.83/'
 	request(options, expect(clone(options), 200))
 
-	options.headers.Referer = '192.168.1.1/router_login.html'
+	options.headers.Referer = 'http://192.168.1.1/router_login.html'
 	request(options, expect(clone(options), 200))
 
-	options.headers.Referer = '192.168.1.1/login'
+	options.headers.Referer = 'http://192.168.1.1/login'
 	request(options, expect(clone(options), 200))
 
-	options.headers.Referer = '192.168.2.1'
+	options.headers.Referer = 'http://192.168.2.1'
 	request(options, expect(clone(options), 401))
 
-	options.headers.Referer = '10.0.0.1'
+	options.headers.Referer = 'http://10.0.0.1'
 	request(options, expect(clone(options), 401))
 
-	options.headers.Referer = '10.0.0.1/login'
+	options.headers.Referer = 'http://10.0.0.1/login'
 	request(options, expect(clone(options), 401))
 
-	options.headers.Referer = '192.168.1.2556'
+	options.headers.Referer = 'http://192.168.1.2556'
 	request(options, expect(clone(options), 401))
 
-	options.headers.Referer = 'mydomain.com'
+	options.headers.Referer = 'http://mydomain.com'
 	request(options, expect(clone(options), 401))
 
 

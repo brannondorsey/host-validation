@@ -76,7 +76,7 @@ app.use(hostValidation({ referers: ['http://trusted-site.com/login.php',
 app.use(hostValidation({ referers: [/^https:\/\//]})
 ```
 
-## Host and/or Referer validation
+### Host and/or Referer validation
 
 ```javascript
 // you can include both host and referer values in the config
@@ -94,7 +94,7 @@ app.use(hostValidation({ hosts: ['trusted-host.com'],
                          mode: 'either' })
 ```
 
-## Custom rules for custom routes
+### Custom rules for custom routes
 
 ```javascript
 // route-specific rules can be specified like any Express.js middleware
