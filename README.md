@@ -1,5 +1,7 @@
 # Host Validation
 
+[![NPM](https://nodei.co/npm/host-validation.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/host-validation/)
+
 Express.js middleware that protects Node.js servers from [DNS Rebinding](https://en.wikipedia.org/wiki/DNS_rebinding) attacks by validating Host and Referer [sic] headers from incoming requests. If a request doesn't contain a whitelisted Host/Referer header, `host-validation` will respond with a 401 Unauthorized HTTP error.
 
 DNS Rebinding is a savy exploit that hasn't gotten the attention it deserves over the years. For this reason tons of services are vulnerable to it because of lack of developer knowledge of the attack or simply negligence and indifference to patch against it. Don't be *that person*.
@@ -23,7 +25,7 @@ const app = express()
 app.use(hostValidation({ hosts: ['127.0.0.1:3000',
                                  'localhost:3000'
                                  'mydomain.com', 
-                                 /.*\.mydomain\.com/] }))
+                                 /.*\.mydomain\.com$/] }))
 
 app.get('/', (req, res) => {
     res.send('Hello trusted client, thanks for including a whitelisted Host header.')
@@ -58,7 +60,7 @@ This package is dead simple. Include a few new lines of code and protect yoursel
 
 ```javascript
 // host and referrer headers can accept strings or regular expressions
-app.use(hostValidation({ hosts: ['mydomain.com', /.*\.mydomain\.com/] }))
+app.use(hostValidation({ hosts: ['mydomain.com', /.*\.mydomain\.com$/] }))
 ```
 
 ### Simple Referer validation
