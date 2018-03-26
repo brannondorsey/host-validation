@@ -1,0 +1,33 @@
+{
+  "name": "host-validation",
+  "version": "1.0.0",
+  "description": "Node.js middleware to validate Host and Referer headers in HTTP requests and protect against DNS rebinding attacks.",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/brannondorsey/host-validation.git"
+  },
+  "keywords": [
+    "express",
+    "middleware",
+    "headers",
+    "host",
+    "header",
+    "dns",
+    "rebind",
+    "validation"
+  ],
+  "author": "Brannon Dorsey <brannon@brannondorsey.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/brannondorsey/host-validation/issues"
+  },
+  "homepage": "https://github.com/brannondorsey/host-validation#readme",
+  "devDependencies": {
+    "express": "^4.16.3",
+    "request": "^2.85.0"
+  }
+}
