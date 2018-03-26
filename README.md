@@ -13,7 +13,7 @@ npm install host-validation
 
 ```javascript
 const express        = require('express')
-const hostValidation = require('./index.js')
+const hostValidation = require('host-validation')
 
 const app = express()
 
