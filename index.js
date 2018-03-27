@@ -65,18 +65,6 @@ module.exports = function(config) {
 		
 		let allowed = true
 
-		// if (config.hosts) {
-		// 	if (! req.headers.host) allowed = allowed = fail(res)
-		// 	else if (! (config.hosts.includes(req.headers.host))) {
-		// 		allowed = fail(res)
-		// 	}
-		// }
-		
-		// if (config.referers) {
-		// 	if (! req.headers.referer) allowed = fail(res)
-		// 	else if (! (config.referers.includes(req.headers.referer))) allowed = fail(res)
-		// }
-
 		if (config.mode == 'both') {
 			if (config.hosts && config.referers) {
 				allowed = (isAllowed(req.headers.host, config.hosts) && 
@@ -85,11 +73,8 @@ module.exports = function(config) {
 			else if (config.hosts)    allowed = isAllowed(req.headers.host, config.hosts)
 			else if (config.referers) allowed = isAllowed(req.headers.referer, config.referers)
 		} else { // mode is either 
-			// console.log(`Host: ${req.headers.host}`)
-			// console.log(`Referer: ${req.headers.referer}`)
 			allowed = (isAllowed(req.headers.host, config.hosts) ||
 				       isAllowed(req.headers.referer, config.referers))
-			// console.log(allowed)
 		}
 
 		if (allowed) next()
