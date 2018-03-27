@@ -100,7 +100,7 @@ function runClientTests() {
 	request(options, expect(clone(options), 200))
 
 	options.headers['Host'] = 'DNSRebind-attack.com'
-	request(options, expect(clone(options), 401))
+	request(options, expect(clone(options), 403))
 
 
 	options.url = `${server}/host-test`
@@ -114,7 +114,7 @@ function runClientTests() {
 	request(options, expect(clone(options), 200))
 
 	options.headers.Host = 'mythirddomain.com'
-	request(options, expect(clone(options), 401))
+	request(options, expect(clone(options), 403))
 
 	options.headers.Host = 'subdomain.mythirddomain.com'
 	request(options, expect(clone(options), 200))
@@ -126,33 +126,33 @@ function runClientTests() {
 	request(options, expect(clone(options), 200))
 
 	options.headers.Referer = 'http://camefromhere.com' //non-HTTP
-	request(options, expect(clone(options), 401))
+	request(options, expect(clone(options), 403))
 
 	options.headers.Referer = 'https://camefromhere.com/specific-page'
 	request(options, expect(clone(options), 200))
 
 	options.headers.Referer = 'https://camefromhere.com/different-page'
-	request(options, expect(clone(options), 401))
+	request(options, expect(clone(options), 403))
 
 	options.headers.Referer = 'https://camefromhere.com/allowed/page'
 	request(options, expect(clone(options), 200))
 
 	// not this shouldn't be allowed given the regex
 	options.headers.Referer = 'https://camefromhere.com/allowed'
-	request(options, expect(clone(options), 401))
+	request(options, expect(clone(options), 403))
 
 	options.headers.Referer = 'http://shouldnt-be-allowed-to-come-from-here.com'
-	request(options, expect(clone(options), 401))
+	request(options, expect(clone(options), 403))
 
 
 	options.url = `${server}/host-and-referers-test`
 	options.headers.Host = 'trusted-host.com'
 	options.headers.Referer = null
-	request(options, expect(clone(options), 401))
+	request(options, expect(clone(options), 403))
 
 	options.headers.Host = null
 	options.headers.Referer = 'http://trusted-host.com/login.php'
-	request(options, expect(clone(options), 401))
+	request(options, expect(clone(options), 403))
 
 	options.headers.Host = 'trusted-host.com'
 	options.headers.Referer = 'http://trusted-host.com/login.php'
@@ -160,11 +160,11 @@ function runClientTests() {
 
 	options.headers.Host = 'trusted-host.com'
 	options.headers.Referer = 'http://trusted-host.com/index.php'
-	request(options, expect(clone(options), 401))
+	request(options, expect(clone(options), 403))
 
 	options.headers.Host = 'untrusted-host.com'
 	options.headers.Referer = 'http://trusted-host.com/login.php'
-	request(options, expect(clone(options), 401))
+	request(options, expect(clone(options), 403))
 
 
 	options.url = `${server}/host-or-referers-test`
@@ -190,11 +190,11 @@ function runClientTests() {
 
 	options.headers.Host = null
 	options.headers.Referer = 'http://trusted-host.com/index.php'
-	request(options, expect(clone(options), 401))
+	request(options, expect(clone(options), 403))
 
 	options.headers.Host = 'untrusted-host.com'
 	options.headers.Referer = null
-	request(options, expect(clone(options), 401))
+	request(options, expect(clone(options), 403))
 
 
 	options.url = `${server}/lan-host-regex-test`
@@ -212,23 +212,23 @@ function runClientTests() {
 
 	options.headers.Host = '192.168.2.1'
 	options.headers.Referer = null
-	request(options, expect(clone(options), 401))
+	request(options, expect(clone(options), 403))
 
 	options.headers.Host = '10.0.0.1'
 	options.headers.Referer = null
-	request(options, expect(clone(options), 401))
+	request(options, expect(clone(options), 403))
 
 	options.headers.Host = '192.168.1.256'
 	options.headers.Referer = null
-	request(options, expect(clone(options), 401))
+	request(options, expect(clone(options), 403))
 
 	options.headers.Host = '192.168.1.2556'
 	options.headers.Referer = null
-	request(options, expect(clone(options), 401))
+	request(options, expect(clone(options), 403))
 
 	options.headers.Host = 'mydomain.com'
 	options.headers.Referer = null
-	request(options, expect(clone(options), 401))
+	request(options, expect(clone(options), 403))
 
 
 	options.url = `${server}/lan-referer-regex-test`
@@ -246,19 +246,19 @@ function runClientTests() {
 	request(options, expect(clone(options), 200))
 
 	options.headers.Referer = 'http://192.168.2.1'
-	request(options, expect(clone(options), 401))
+	request(options, expect(clone(options), 403))
 
 	options.headers.Referer = 'http://10.0.0.1'
-	request(options, expect(clone(options), 401))
+	request(options, expect(clone(options), 403))
 
 	options.headers.Referer = 'http://10.0.0.1/login'
-	request(options, expect(clone(options), 401))
+	request(options, expect(clone(options), 403))
 
 	options.headers.Referer = 'http://192.168.1.2556'
-	request(options, expect(clone(options), 401))
+	request(options, expect(clone(options), 403))
 
 	options.headers.Referer = 'http://mydomain.com'
-	request(options, expect(clone(options), 401))
+	request(options, expect(clone(options), 403))
 
 
 	options.url = `${server}/https-referer`
@@ -273,13 +273,13 @@ function runClientTests() {
 	request(options, expect(clone(options), 200))
 
 	options.headers.Referer = 'http://google.com'
-	request(options, expect(clone(options), 401))
+	request(options, expect(clone(options), 403))
 
 	options.headers.Referer = 'http://localhost'
-	request(options, expect(clone(options), 401))
+	request(options, expect(clone(options), 403))
 
 	options.headers.Referer = 'http://github.com/login'
-	request(options, expect(clone(options), 401))
+	request(options, expect(clone(options), 403))
 
 }
 

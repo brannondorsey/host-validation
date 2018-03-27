@@ -119,6 +119,6 @@ module.exports = function(config) {
 	}
 
 	function fail(res) {
-		res.status(401).send('Not Authorized. Invalid "Host" or "Referer" headers.')
+		res.status(403).send('Forbidden')
 	}
 }

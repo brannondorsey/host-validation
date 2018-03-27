@@ -2,7 +2,7 @@
 
 [![NPM](https://nodei.co/npm/host-validation.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/host-validation/)
 
-Express.js middleware that protects Node.js servers from [DNS Rebinding](https://en.wikipedia.org/wiki/DNS_rebinding) attacks by validating Host and Referer [sic] headers from incoming requests. If a request doesn't contain a whitelisted Host/Referer header, `host-validation` will respond with a 401 Unauthorized HTTP error.
+Express.js middleware that protects Node.js servers from [DNS Rebinding](https://en.wikipedia.org/wiki/DNS_rebinding) attacks by validating Host and Referer [sic] headers from incoming requests. If a request doesn't contain a whitelisted Host/Referer header, `host-validation` will respond with a 403 Forbidden HTTP error.
 
 DNS Rebinding is a savy exploit that hasn't gotten the attention it deserves over the years. For this reason tons of services are vulnerable to it because of lack of developer knowledge of the attack or simply negligence and indifference to patch against it. Don't be *that person*.
 
@@ -21,7 +21,7 @@ const app = express()
 
 // allow development hosts, a domain name, and a regex for all subdomains
 // any requests that don't supply a whitelisted Host will be rejected
-// with a 401 HTTP status code
+// with a 403 HTTP status code
 app.use(hostValidation({ hosts: ['127.0.0.1:3000',
                                  'localhost:3000'
                                  'mydomain.com', 
