@@ -44,7 +44,7 @@ module.exports = function(config) {
 	}
 
 	if (config.referers){
-		
+
 		if (config.referers.length < 1) {
 			throw Error('config.referers must be an array with at least one element')
 		}
@@ -62,22 +62,23 @@ module.exports = function(config) {
 	}
 
 	return function(req, res, next) {
-		
+
 		let allowed = true
 
 		if (config.mode == 'both') {
 			if (config.hosts && config.referers) {
-				allowed = (isAllowed(req.headers.host, config.hosts) && 
+				allowed = (isAllowed(req.headers.host, config.hosts) &&
 				           isAllowed(req.headers.referer, config.referers))
-			} 
+			}
 			else if (config.hosts)    allowed = isAllowed(req.headers.host, config.hosts)
 			else if (config.referers) allowed = isAllowed(req.headers.referer, config.referers)
-		} else { // mode is either 
+		} else { // mode is either
 			allowed = (isAllowed(req.headers.host, config.hosts) ||
 				       isAllowed(req.headers.referer, config.referers))
 		}
 
 		if (allowed) next()
+		else if (config.handler) config.handler(req, res)
 		else fail(res)
 	}
 
@@ -99,7 +100,7 @@ module.exports = function(config) {
 			let message = `${type} is not an allowed Host/Referer type. `
 			message    += 'Host/Referer values must be either strings or '
 			message    += 'regular expression objects.'
-			throw Error(message) 
+			throw Error(message)
 		}
 	}
 
