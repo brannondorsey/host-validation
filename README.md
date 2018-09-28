@@ -1,5 +1,7 @@
 # Host Validation
 
+[![Build Status](https://travis-ci.com/brannondorsey/host-validation.svg?branch=master)](https://travis-ci.com/brannondorsey/host-validation) [![Coverage Status](https://coveralls.io/repos/github/brannondorsey/host-validation/badge.svg?branch=master)](https://coveralls.io/github/brannondorsey/host-validation?branch=master)
+
 [![NPM](https://nodei.co/npm/host-validation.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/host-validation/)
 
 Express.js middleware that protects Node.js servers from [DNS Rebinding](https://en.wikipedia.org/wiki/DNS_rebinding) attacks by validating Host and Referer [sic] headers from incoming requests. If a request doesn't contain a whitelisted Host/Referer header, `host-validation` will respond with a 403 Forbidden HTTP error.
