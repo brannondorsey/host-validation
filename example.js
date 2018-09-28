@@ -25,7 +25,7 @@ const app = express()
 
 // allow development hosts, a domain name, and a regex for all subdomains
 app.use(hostValidation({ hosts: ['127.0.0.1:3000',
-								 'localhost:3000'
+								 'localhost:3000',
 								 'mydomain.com', 
 								 /.*\.mydomain\.com/] }))
 

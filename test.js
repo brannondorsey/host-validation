@@ -74,7 +74,7 @@ const server = app.listen(4322, () => {
 
 // this is a terrible hack, but it's the simplest way to have the tests finish
 // please, nobody stone me for this...
-setTimeout(() => server.close(() => process.exit(0)), 1500)
+setTimeout(() => server.close(() => process.exit(0)), 2000)
 
 function allowed(res) {
 	res.send('Hello trusted client, thanks for sending the right Host/Referer headers.')
