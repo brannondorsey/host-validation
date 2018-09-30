@@ -18,16 +18,50 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+const assert         = require('assert')
 const request        = require('request')
 const express        = require('express')
 const hostValidation = require('./index.js')
+
+// ASSERTIONS
+
+assert.throws(() => hostValidation(), (err) => {
+	return err.message === 'a config object must be provided as the first argument to this function.'
+})
+
+assert.throws(() => hostValidation({}), (err) => {
+	return err.message === 'either config.hosts or config.referers must included in the config object.'
+})
+
+assert.throws(() => hostValidation({ hosts: [] }), (err) => {
+	return err.message === 'config.hosts must be an array with at least one element.'
+})
+
+assert.throws(() => hostValidation({ referers: [] }), (err) => {
+	return err.message === 'config.referers must be an array with at least one element.'
+})
+
+assert.throws(() => hostValidation({ referrers: [] }), (err) => {
+	return err.message === 'config.referers must be an array with at least one element.'
+})
+
+assert.throws(() => hostValidation({ hosts: [5] }), (err) => {
+	return err.message === '5 is not an allowed Host/Referer type. Host/Referer values must be either strings or regular expression objects.'
+})
+
+assert.throws(() => hostValidation({ hosts: ['test.com'], mode: 'fakemode' }), (err) => {
+	return err.message === 'fakemode is an unsupported config.mode. Value must be exactly "either" or "both".'
+})
+
+assert.throws(() => hostValidation({ hosts: ['test.com'], fail: 5 }), (err) => {
+	return err.message === 'config.fail must be a function if it is defined.'
+})
 
 // SERVER --------------------------------------------------------------------------------
 const app = express()
 
 app.use('/dev-host-test', hostValidation({ hosts: ['127.0.0.1:4322', 'localhost:4322'] }))
 app.get('/dev-host-test', (req, res) => allowed(res))
-
 
 app.use('/host-test', hostValidation({ hosts: ['mydomain.com', 
 	                                           'myseconddomain.com',
@@ -43,14 +77,18 @@ app.use('/referers-test', hostValidation({ referers: ['https://camefromhere.com'
 app.get('/referers-test', (req, res) => allowed(res))
 
 
-app.use('/host-and-referers-test', hostValidation({ hosts: ['trusted-host.com'], 
-	                                           referers: ['http://trusted-host.com/login.php'] }))
+app.use('/host-and-referers-test', hostValidation({ 
+	hosts: ['trusted-host.com'], 
+	referers: ['http://trusted-host.com/login.php'] 
+}))
+
 app.get('/host-and-referers-test', (req, res) => allowed(res))
 
-
-app.use('/host-or-referers-test', hostValidation({ hosts: ['trusted-host.com'], 
-	                                          referers: ['http://trusted-host.com/login.php'],
-	                                          mode: 'either' }))
+app.use('/host-or-referers-test', hostValidation({ 
+	hosts: ['trusted-host.com'], 
+	referrers: ['http://trusted-host.com/login.php'], // account for correct spelling of referers
+	mode: 'either' 
+}))
 app.get('/host-or-referers-test', (req, res) => allowed(res))
 
 // regex to match '192.168.1.1-255' (actually matches '192.168.1.001-255' too, but w/e...)
@@ -66,6 +104,24 @@ app.get('/lan-referer-regex-test', (req, res) => allowed(res))
 app.use('/https-referer', hostValidation({ referers: [/^https:\/\//] }))
 app.get('/https-referer', (req, res) => allowed(res))
 
+
+app.use('/custom-fail-test', hostValidation({ 
+	referers: [/^https:\/\//], 
+	fail: (req, res, next) => {
+		// using 401 instead of 403 for testing purposes only
+		res.status(401).send('Forbidden: Referer must be an HTTPS site.')
+	}
+}))
+app.get('/custom-fail-test', (req, res) => allowed(res))
+
+app.use('/custom-fail-teapot-test', hostValidation({ 
+	hosts: ['office-teapot'],
+	fail: (req, res, next) => {
+        // send a 418 "I'm a Teapot" Error
+		res.status(418).send('I\'m the office teapot. Refer to me only as such.')
+	}
+}))
+app.get('/custom-fail-teapot-test', (req, res) => allowed(res))
 
 const server = app.listen(4322, () => {
 	console.log('server allowing HTTP requests from 127.0.0.1 on port 4322')
@@ -101,7 +157,6 @@ function runClientTests() {
 
 	options.headers['Host'] = 'DNSRebind-attack.com'
 	request(options, expect(clone(options), 403))
-
 
 	options.url = `${server}/host-test`
 	options.headers.Host = 'mydomain.com'
@@ -281,6 +336,28 @@ function runClientTests() {
 	options.headers.Referer = 'http://github.com/login'
 	request(options, expect(clone(options), 403))
 
+
+	options.url = `${server}/custom-fail-test`
+	options.headers.Host = null
+	options.headers.Referer = 'https://google.com'
+	request(options, expect(clone(options), 200))
+
+	options.headers.Referer = 'https://github.com/login'
+	request(options, expect(clone(options), 200))
+
+	options.headers.Referer = 'http://localhost'
+	request(options, expect(clone(options), 401))
+
+	options.headers.Referer = 'http://google.com'
+	request(options, expect(clone(options), 401))
+
+	options.url = `${server}/custom-fail-teapot-test`
+	options.headers.Host = 'office-teapot'
+	options.headers.Referer = null
+	request(options, expect(clone(options), 200))
+
+	options.headers.Host = 'office-coffeepot'
+	request(options, expect(clone(options), 418))
 }
 
 function expect(options, status) {

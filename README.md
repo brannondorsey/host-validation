@@ -21,9 +21,11 @@ const hostValidation = require('host-validation')
 
 const app = express()
 
-// allow development hosts, a domain name, and a regex for all subdomains
+// allow development hosts, a domain name, and a regex for all subdomains.
 // any requests that don't supply a whitelisted Host will be rejected
-// with a 403 HTTP status code
+// with a 403 HTTP status code 
+// NOTE: custom errors can be returned by a config.fail function. see "custom 
+// failure handlers" below.
 app.use(hostValidation({ hosts: ['127.0.0.1:3000',
                                  'localhost:3000',
                                  'mydomain.com', 
@@ -101,8 +103,22 @@ app.use(hostValidation({ hosts: ['trusted-host.com'],
 ```javascript
 // route-specific rules can be specified like any Express.js middleware
 app.use('/login', hostValidation({ hosts: ['trusted-host.com'] }))
-
 app.use('/from-twitter', hostValidation({ referrers: [/^https:\/\/twitter.com\//] }))
+```
+
+## Custom failure handlers
+
+Add a custom error handler that's run when host or referer validation fails. This function overwrites the default behavior of responding to failed requests with a `403 Forbidden` error.
+
+```javascript
+// 
+app.use('/brew-tea', hostValidation({ 
+	host: ['office-teapot'],
+	fail: (req, res, next) => {
+        // send a 418 "I'm a Teapot" Error
+		res.status(418).send('I\'m the office teapot. Refer to me only as such.')
+	}
+}))
 ```
 
 ## Testing

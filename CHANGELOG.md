@@ -1,6 +1,12 @@
 # Host Validation CHANGELOG
 
-## v1.2.0 (upcoming release)
+## v2.0.0
+
+- Add custom error handler ([#1](https://github.com/brannondorsey/host-validation/issues/1))
+- Change several error messages (this change required the breaking semver bump)
+- Add tests to improve testing coverage
+
+## v1.2.0
 
 - Add CI with `.travis.yml`.
 - Add test coverage with Coveralls.

@@ -20,13 +20,13 @@
 
 module.exports = function(config) {
 
+	if (!config) {
+		throw Error('a config object must be provided as the first argument to this function.')
+	}
+
 	// account for correct referrers spelling
 	if (config.referrers && !config.referers) {
 		config.referers = config.referrers
-	}
-
-	if (!config) {
-		throw Error('a config object must be provided as the first argument to this function.')
 	}
 
 	if (!Array.isArray(config.hosts) && !Array.isArray(config.referers)) {
@@ -36,7 +36,7 @@ module.exports = function(config) {
 	if (config.hosts) {
 
 		if (config.hosts.length < 1) {
-			throw Error('config.hosts is required and must be an array with at least one element')
+			throw Error('config.hosts must be an array with at least one element.')
 		}
 
 		// throws an error if hosts contains an element that is not a string or RegExp
@@ -46,7 +46,7 @@ module.exports = function(config) {
 	if (config.referers){
 		
 		if (config.referers.length < 1) {
-			throw Error('config.referers must be an array with at least one element')
+			throw Error('config.referers must be an array with at least one element.')
 		}
 
 		// throws an error if referers contains an element that is not a string or RegExp
@@ -55,10 +55,14 @@ module.exports = function(config) {
 
 	if (config.mode) {
 		if (!['both', 'either'].includes(config.mode)) {
-			throw Error(`${config.mode} is an unsuported config.mode. Value must be exaclty "either" or "both".`)
+			throw Error(`${config.mode} is an unsupported config.mode. Value must be exactly "either" or "both".`)
 		}
 	} else {
 		config.mode = 'both' // set default mode to both
+	}
+
+	if (config.fail != null && typeof config.fail !== 'function') {
+		throw Error(`config.fail must be a function if it is defined.`)
 	}
 
 	return function(req, res, next) {
@@ -78,7 +82,8 @@ module.exports = function(config) {
 		}
 
 		if (allowed) next()
-		else fail(res)
+		else if (typeof config.fail === 'function') config.fail(req, res, next) 
+		else fail(req, res, next)
 	}
 
 	function isAllowed(headerValue, allowedValues) {
@@ -103,7 +108,7 @@ module.exports = function(config) {
 		}
 	}
 
-	function fail(res) {
+	function fail(req, res, next) {
 		res.status(403).send('Forbidden')
 	}
 }
