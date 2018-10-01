@@ -52,7 +52,7 @@ Not so fast. Enter DNS Rebinding. In the above scenario, your browser won't allo
 
 Any HTTP server that 1) doesn't use HTTPS or 2) has no user authentication and 3) doesn't validate the Host header of incoming requests is vulnerable to DNS Rebind attacks.
 
-This package protects you from #2. If you are using HTTPSn you don't need to use this package (good job!). But hey... I bet you don't use HTTPS when when you are developing on your local machine/network. Local networks are among the top targets for DNS Rebind attacks, so you should probably validate Host headers in that circumstance too.
+This package protects you from #2. If you are using HTTPS you don't need to use this package (good job!). But hey... I bet you don't use HTTPS when when you are developing on your local machine/network. Local networks are among the top targets for DNS Rebind attacks, so you should probably validate Host headers in that circumstance too.
 
 The reason that "Host" header validation mitigates against DNS rebinding is that malicious requests sent from web browsers will have "Host" values that don't match the ones you would expect your server to have. For instance, your home router should expect to see "Host" values like `192.168.1.1`, `192.168.0.1`, or maybe `router.asus.com`, but definitely not `http://malicious-ad.com`. Simply checking that the "Host" header contains the value that you expect will prevent DNS rebinding attacks and leave your users protected. 
 
