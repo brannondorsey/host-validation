@@ -113,7 +113,7 @@ Add a custom error handler that's run when host or referer validation fails. Thi
 ```javascript
 // 
 app.use('/brew-tea', hostValidation({ 
-	host: ['office-teapot'],
+	hosts: ['office-teapot'],
 	fail: (req, res, next) => {
         // send a 418 "I'm a Teapot" Error
 		res.status(418).send('I\'m the office teapot. Refer to me only as such.')
