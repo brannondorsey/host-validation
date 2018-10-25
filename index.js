@@ -88,7 +88,7 @@ module.exports = function(config) {
 
 	function isAllowed(headerValue, allowedValues) {
 		if (!headerValue || !allowedValues) return false
-		const matches = allowedValues.filter(candidate => {
+		return allowedValues.some(candidate => {
 			if (typeof candidate === 'string') {
 				return candidate === headerValue
 			} else if (candidate instanceof RegExp){
@@ -96,7 +96,6 @@ module.exports = function(config) {
 			}
 			return false
 		})
-		return matches.length > 0
 	}
 
 	function checkAllowedType(type) {
