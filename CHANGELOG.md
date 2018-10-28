@@ -1,5 +1,9 @@
 # Host Validation CHANGELOG
 
+## v2.0.1
+
+- Improve performance in `isAllowed()` thanks to [Evan Hahn](https://github.com/EvanHahn) ([#6](https://github.com/brannondorsey/host-validation/pull/6)).
+
 ## v2.0.0
 
 - Add custom error handler ([#1](https://github.com/brannondorsey/host-validation/issues/1))
