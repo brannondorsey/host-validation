@@ -77,7 +77,7 @@ app.use(hostValidation({ referers: ['http://trusted-site.com/login.php',
 
 ```javascript
 // only accept POSTs from HTTPS referrers
-app.use(hostValidation({ referers: [/^https:\/\//]})
+app.use(hostValidation({ referers: [/^https:\/\//]}))
 ```
 
 ### Host and/or Referer validation
@@ -86,7 +86,7 @@ app.use(hostValidation({ referers: [/^https:\/\//]})
 // you can include both host and referer values in the config
 // by default, only requests that match BOTH Host and Referer values will be allowed
 app.use(hostValidation({ hosts: ['trusted-host.com'], 
-                         referers: ['https://trusted-host.com/login.php'] })
+                         referers: ['https://trusted-host.com/login.php'] }))
 ```
 
 ```javascript
@@ -95,7 +95,7 @@ app.use(hostValidation({ hosts: ['trusted-host.com'],
 // 'both' and 'either'. The default value is 'both' if none is specified.  
 app.use(hostValidation({ hosts: ['trusted-host.com'], 
                          referers: ['https://trusted-host.com/login.php'],
-                         mode: 'either' })
+                         mode: 'either' }))
 ```
 
 ### Custom rules for custom routes
