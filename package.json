@@ -4,7 +4,10 @@
   "description": "Node.js middleware to validate Host and Referer headers in HTTP requests and protect against DNS rebinding attacks.",
   "main": "index.js",
   "scripts": {
+    "pretest": "npm run lint",
     "test": "node test.js",
+    "lint": "prettier --check .",
+    "format": "prettier --write .",
     "coverage": "nyc --reporter=html --reporter=text node test.js && rm -rf .nyc_output/",
     "coveralls": "istanbul cover test.js -x test.js --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage"
   },
@@ -33,6 +36,7 @@
     "express": "^4.16.3",
     "istanbul": "^0.4.5",
     "nyc": "^13.0.1",
+    "prettier": "^2.7.1",
     "request": "^2.85.0"
   }
 }

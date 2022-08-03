@@ -1,4 +1,4 @@
-// Copyright (c) 2018 Brannon Dorsey <brannon@brannondorsey.com>
+// Copyright (c) 2018-2022 Brannon Dorsey <brannon@brannondorsey.com>
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,21 +18,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-const express        = require('express')
-const hostValidation = require('./index.js')
+const express = require("express");
+const hostValidation = require("./index.js");
 
-const app = express()
+const app = express();
 
 // allow development hosts, a domain name, and a regex for all subdomains
-app.use(hostValidation({ hosts: ['127.0.0.1:3000',
-								 'localhost:3000',
-								 'mydomain.com', 
-								 /.*\.mydomain\.com/] }))
+app.use(
+  hostValidation({
+    hosts: [
+      "127.0.0.1:3000",
+      "localhost:3000",
+      "mydomain.com",
+      /.*\.mydomain\.com/,
+    ],
+  })
+);
 
-app.get('/', (req, res) => {
-	res.send('Hello trusted client, thanks for including 127.0.0.1 in your Host header.')
-})
+app.get("/", (req, res) => {
+  res.send(
+    "Hello trusted client, thanks for including 127.0.0.1 in your Host header."
+  );
+});
 
 app.listen(3000, () => {
-	console.log('server allowing HTTP requests from 127.0.0.1 on port 3000')
-})
+  console.log("server allowing HTTP requests from 127.0.0.1 on port 3000");
+});
