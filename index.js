@@ -1,4 +1,4 @@
-// Copyright (c) 2018 Brannon Dorsey <brannon@brannondorsey.com>
+// Copyright (c) 2018-2022 Brannon Dorsey <brannon@brannondorsey.com>
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,96 +18,104 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-module.exports = function(config) {
+module.exports = function (config) {
+  if (!config) {
+    throw Error(
+      "a config object must be provided as the first argument to this function."
+    );
+  }
 
-	if (!config) {
-		throw Error('a config object must be provided as the first argument to this function.')
-	}
+  // account for correct referrers spelling
+  if (config.referrers && !config.referers) {
+    config.referers = config.referrers;
+  }
 
-	// account for correct referrers spelling
-	if (config.referrers && !config.referers) {
-		config.referers = config.referrers
-	}
+  if (!Array.isArray(config.hosts) && !Array.isArray(config.referers)) {
+    throw Error(
+      "either config.hosts or config.referers must included in the config object."
+    );
+  }
 
-	if (!Array.isArray(config.hosts) && !Array.isArray(config.referers)) {
-		throw Error('either config.hosts or config.referers must included in the config object.')
-	}
+  if (config.hosts) {
+    if (config.hosts.length < 1) {
+      throw Error("config.hosts must be an array with at least one element.");
+    }
 
-	if (config.hosts) {
+    // throws an error if hosts contains an element that is not a string or RegExp
+    config.hosts.forEach((host) => checkAllowedType(host));
+  }
 
-		if (config.hosts.length < 1) {
-			throw Error('config.hosts must be an array with at least one element.')
-		}
+  if (config.referers) {
+    if (config.referers.length < 1) {
+      throw Error(
+        "config.referers must be an array with at least one element."
+      );
+    }
 
-		// throws an error if hosts contains an element that is not a string or RegExp
-		config.hosts.forEach(host => checkAllowedType(host))
-	}
+    // throws an error if referers contains an element that is not a string or RegExp
+    config.referers.forEach((referer) => checkAllowedType(referer));
+  }
 
-	if (config.referers){
-		
-		if (config.referers.length < 1) {
-			throw Error('config.referers must be an array with at least one element.')
-		}
+  if (config.mode) {
+    if (!["both", "either"].includes(config.mode)) {
+      throw Error(
+        `${config.mode} is an unsupported config.mode. Value must be exactly "either" or "both".`
+      );
+    }
+  } else {
+    config.mode = "both"; // set default mode to both
+  }
 
-		// throws an error if referers contains an element that is not a string or RegExp
-		config.referers.forEach(referer => checkAllowedType(referer))
-	}
+  if (config.fail != null && typeof config.fail !== "function") {
+    throw Error(`config.fail must be a function if it is defined.`);
+  }
 
-	if (config.mode) {
-		if (!['both', 'either'].includes(config.mode)) {
-			throw Error(`${config.mode} is an unsupported config.mode. Value must be exactly "either" or "both".`)
-		}
-	} else {
-		config.mode = 'both' // set default mode to both
-	}
+  return function (req, res, next) {
+    let allowed = true;
 
-	if (config.fail != null && typeof config.fail !== 'function') {
-		throw Error(`config.fail must be a function if it is defined.`)
-	}
+    if (config.mode == "both") {
+      if (config.hosts && config.referers) {
+        allowed =
+          isAllowed(req.headers.host, config.hosts) &&
+          isAllowed(req.headers.referer, config.referers);
+      } else if (config.hosts)
+        allowed = isAllowed(req.headers.host, config.hosts);
+      else if (config.referers)
+        allowed = isAllowed(req.headers.referer, config.referers);
+    } else {
+      // mode is either
+      allowed =
+        isAllowed(req.headers.host, config.hosts) ||
+        isAllowed(req.headers.referer, config.referers);
+    }
 
-	return function(req, res, next) {
-		
-		let allowed = true
+    if (allowed) next();
+    else if (typeof config.fail === "function") config.fail(req, res, next);
+    else fail(req, res, next);
+  };
 
-		if (config.mode == 'both') {
-			if (config.hosts && config.referers) {
-				allowed = (isAllowed(req.headers.host, config.hosts) && 
-				           isAllowed(req.headers.referer, config.referers))
-			} 
-			else if (config.hosts)    allowed = isAllowed(req.headers.host, config.hosts)
-			else if (config.referers) allowed = isAllowed(req.headers.referer, config.referers)
-		} else { // mode is either 
-			allowed = (isAllowed(req.headers.host, config.hosts) ||
-				       isAllowed(req.headers.referer, config.referers))
-		}
+  function isAllowed(headerValue, allowedValues) {
+    if (!headerValue || !allowedValues) return false;
+    return allowedValues.some((candidate) => {
+      if (typeof candidate === "string") {
+        return candidate === headerValue;
+      } else if (candidate instanceof RegExp) {
+        return candidate.test(headerValue);
+      }
+      return false;
+    });
+  }
 
-		if (allowed) next()
-		else if (typeof config.fail === 'function') config.fail(req, res, next) 
-		else fail(req, res, next)
-	}
+  function checkAllowedType(type) {
+    if (!(typeof type === "string" || type instanceof RegExp)) {
+      let message = `${type} is not an allowed Host/Referer type. `;
+      message += "Host/Referer values must be either strings or ";
+      message += "regular expression objects.";
+      throw Error(message);
+    }
+  }
 
-	function isAllowed(headerValue, allowedValues) {
-		if (!headerValue || !allowedValues) return false
-		return allowedValues.some(candidate => {
-			if (typeof candidate === 'string') {
-				return candidate === headerValue
-			} else if (candidate instanceof RegExp){
-				return candidate.test(headerValue)
-			}
-			return false
-		})
-	}
-
-	function checkAllowedType(type) {
-		if (! (typeof type === 'string' || type instanceof RegExp)) {
-			let message = `${type} is not an allowed Host/Referer type. `
-			message    += 'Host/Referer values must be either strings or '
-			message    += 'regular expression objects.'
-			throw Error(message) 
-		}
-	}
-
-	function fail(req, res, next) {
-		res.status(403).send('Forbidden')
-	}
-}
+  function fail(req, res, next) {
+    res.status(403).send("Forbidden");
+  }
+};
