@@ -41,10 +41,6 @@ assert.throws(() => hostValidation({ referers: [] }), (err) => {
 	return err.message === 'config.referers must be an array with at least one element.'
 })
 
-assert.throws(() => hostValidation({ referrers: [] }), (err) => {
-	return err.message === 'config.referers must be an array with at least one element.'
-})
-
 assert.throws(() => hostValidation({ hosts: [5] }), (err) => {
 	return err.message === '5 is not an allowed Host/Referer type. Host/Referer values must be either strings or regular expression objects.'
 })
